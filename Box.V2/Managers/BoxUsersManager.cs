@@ -142,5 +142,20 @@ namespace Box.V2.Managers
 
             return response.ResponseObject;
         }
+
+        /// <summary>
+        /// Retrieves all email aliases for this user. The collection of email aliases does not include the primary login for the user.
+        /// </summary>
+        /// <param name="userId">The user ID.</param>
+        /// <returns>If the userId is valid a collection of email aliases will be returned.</returns>
+        public async Task<BoxCollection<BoxEmailAlias>> GetEmailAliasesAsync(string userId)
+        {
+            BoxRequest request = new BoxRequest(_config.UserEndpointUri, string.Format(Constants.UserEmailAliasesPathString, userId)).
+                Method(RequestMethod.Get);
+
+            IBoxResponse<BoxCollection<BoxEmailAlias>> response = await ToResponseAsync<BoxCollection<BoxEmailAlias>>(request).ConfigureAwait(false);
+
+            return response.ResponseObject;
+        }
     }
 }
