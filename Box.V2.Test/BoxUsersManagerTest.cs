@@ -186,5 +186,37 @@ namespace Box.V2.Test
             Assert.AreEqual("dglover3@box.com", emailALiases.Entries[1].Email);
 
         }
+
+        [TestMethod]
+        public async Task AddEmailAlias_ValidResponse_ValidUser()
+        {
+            IBoxRequest boxRequest = null;
+            /*** Arrange ***/
+            string responseString = "{\"type\":\"email_alias\",\"id\":\"1234\",\"is_confirmed\":true,\"email\":\"dglover2@box.com\"}";
+            _handler.Setup(h => h.ExecuteAsync<BoxEmailAlias>(It.IsAny<IBoxRequest>()))
+                .Returns(Task.FromResult <IBoxResponse<BoxEmailAlias>>(new BoxResponse<BoxEmailAlias>()
+                {
+                    Status = ResponseStatus.Success,
+                    ContentString = responseString
+                }))
+                .Callback<IBoxRequest>(r => boxRequest = r);
+
+            /*** Act ***/
+            BoxEmailAlias emailALias = await _usersManager.AddEmailAliasesAsync("1234", "mail@server.com");
+
+            /*** Assert ***/
+            // request
+            Assert.IsNotNull(boxRequest);
+            Assert.AreEqual(RequestMethod.Post, boxRequest.Method);
+            Assert.AreEqual(_usersUri + "1234/email_aliases/", boxRequest.AbsoluteUri.AbsoluteUri);
+            Assert.AreEqual("{\"email\":\"mail@server.com\"}", boxRequest.Payload);
+
+            // response
+            Assert.IsNotNull(emailALias);
+            Assert.AreEqual("email_alias", emailALias.Type);
+            Assert.AreEqual("1234", emailALias.Id);
+            Assert.AreEqual(true, emailALias.IsConfirmed);
+            Assert.AreEqual("dglover2@box.com", emailALias.Email);
+        }
     }
 }
