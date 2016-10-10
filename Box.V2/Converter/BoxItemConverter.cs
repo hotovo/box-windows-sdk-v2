@@ -53,6 +53,8 @@ namespace Box.V2.Converter
                         return new BoxUserInvite();
                     case Constants.TypeWebhook:
                         return new BoxWebhook();
+					case Constants.TypeTask:
+                        return new BoxTask();
                     case Constants.TypeEmailAlias:
                         return new BoxEmailAlias();
                 }
