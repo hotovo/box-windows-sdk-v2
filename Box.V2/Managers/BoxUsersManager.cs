@@ -166,7 +166,7 @@ namespace Box.V2.Managers
         /// </summary>
         /// <param name="userId">The user ID (required).</param>
         /// <param name="email">The email address to add to the account as an alias (required).</param>
-        /// <returns>If the userId is valid a collection of email aliases will be returned.</returns>
+        /// <returns>Returns the newly created email_alias object. Errors will be thrown if the user_id is not valid or the particular user’s email alias cannot be modified.</returns>
         public async Task<BoxEmailAlias> AddEmailAliasesAsync(string userId, string email)
         {
             userId.ThrowIfNullOrWhiteSpace("userId");
