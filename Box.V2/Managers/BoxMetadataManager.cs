@@ -66,7 +66,7 @@ namespace Box.V2.Managers
         /// <param name="metadata">Metadata to create</param>
         /// <param name="scope">Scope name. Currently, only the enterprise scope is supported</param>
         /// <param name="template">Metadata template name</param>
-        /// <returns></returns>
+        /// <returns>An instance of the template that includes key:value pairs defined by a user or application.</returns>
         public async Task<Dictionary<string, object>> CreateFolderMetadataAsync(string folderId, Dictionary<string, object> metadata, string scope, string template)
         {
             return await CreateMetadata(_config.FoldersEndpointUri, folderId, metadata, scope, template);
