@@ -113,12 +113,16 @@ namespace Box.V2.Managers
         /// <summary>
         /// Used to delete the template instance. To delete custom key:value pairs within a template instance, you should refer to the updating metadata section.
         /// </summary>
-        /// <param name="folderId">Id of folder</param>
-        /// <param name="scope">Scope name. Currently, only the enterprise scope is supported</param>
-        /// <param name="template">Metadata template name</param>
-        /// <returns></returns>
+        /// <param name="folderId">Id of folder.</param>
+        /// <param name="scope">Scope name. Currently, the only scopes support are enterprise and global.</param>
+        /// <param name="template">Metadata template name.</param>
+        /// <returns>Response to confirm the deletion of the template instance</returns>
         public async Task<bool> DeleteFolderMetadataAsync(string folderId, string scope, string template)
         {
+            folderId.ThrowIfNullOrWhiteSpace("folderId");
+            scope.ThrowIfNullOrWhiteSpace("scope");
+            template.ThrowIfNullOrWhiteSpace("template");
+
             return await DeleteMetadata(_config.FoldersEndpointUri, folderId, scope, template);
         }
 
