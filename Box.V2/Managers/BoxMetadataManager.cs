@@ -92,7 +92,7 @@ namespace Box.V2.Managers
         /// <param name="updates">Metadata updates to apply</param>
         /// <param name="scope">Scope name. Currently, only the enterprise scope is supported</param>
         /// <param name="template">Metadata template name</param>
-        /// <returns></returns>
+        /// <returns>An instance of the template that includes key:value pairs defined by a user or application.</returns>
         public async Task<Dictionary<string, object>> UpdateFolderMetadataAsync(string folderId, List<BoxMetadataUpdate> updates, string scope, string template)
         {
             return await UpdateMetadata(_config.FoldersEndpointUri, folderId, updates, scope, template);

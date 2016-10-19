@@ -365,5 +365,95 @@ namespace Box.V2.Test
             /***response***/
             Assert.IsTrue(result);
         }
+
+        [TestMethod]
+        public async Task UpdateFolderMetadata_ValidResponse_ValidMetadata()
+        {
+            /*** Arrange ***/
+            string responseString = @"{
+                                        ""currentDocumentStage"": ""prioritization"",
+                                        ""needsApprovalFrom"": ""planning team"",
+                                        ""$type"": ""documentFlow-452b4c9d-c3ad-4ac7-b1ad-9d5192f2fc5f"",
+                                        ""$parent"": ""folder_998951261"",
+                                        ""$id"": ""e57f90ff-0044-48c2-807d-06b908765baf"",
+                                        ""$version"": 1,
+                                        ""$typeVersion"": 2,
+                                        ""maximumDaysAllowedInCurrentStage"": 5,
+                                        ""$template"": ""documentFlow"",
+                                        ""$scope"": ""enterprise_12345""
+                                    }";
+
+            IBoxRequest boxRequest = null;
+            _handler.Setup(h => h.ExecuteAsync<Dictionary<string, object>>(It.IsAny<IBoxRequest>()))
+                .Returns(Task.FromResult<IBoxResponse<Dictionary<string, object>>>(new BoxResponse<Dictionary<string, object>>()
+                {
+                    Status = ResponseStatus.Success,
+                    ContentString = responseString
+                })).Callback<IBoxRequest>(r => boxRequest = r);
+
+            /*** Act ***/
+            List<BoxMetadataUpdate> updates = new List<BoxMetadataUpdate>()
+            {
+                new BoxMetadataUpdate()
+                {
+                    Op = MetadataUpdateOp.test,
+                    Path = "/currentDocumentStage",
+                    Value = "initial vetting"
+                },
+                new BoxMetadataUpdate()
+                {
+                    Op = MetadataUpdateOp.replace,
+                    Path = "/currentDocumentStage",
+                    Value= "prioritization"
+                },
+                new BoxMetadataUpdate()
+                {
+                    Op = MetadataUpdateOp.test,
+                    Path = "/needsApprovalFrom",
+                    Value = "vetting team"
+                },
+                new BoxMetadataUpdate()
+                {
+                    Op = MetadataUpdateOp.replace,
+                    Path = "/needsApprovalFrom",
+                    Value = "planning team"
+                },
+                new BoxMetadataUpdate()
+                {
+                    Op = MetadataUpdateOp.add,
+                    Path="/maximumDaysAllowedInCurrentStage",
+                    Value = "5"
+                },
+                new BoxMetadataUpdate()
+                {
+                    Op = MetadataUpdateOp.test,
+                    Path = "/nextDocumentStage",
+                    Value = "prioritization"
+                },
+                new BoxMetadataUpdate()
+                {
+                    Op = MetadataUpdateOp.remove,
+                    Path = "/nextDocumentStage"
+                }
+            };
+            Dictionary<string, object> result = await _metadataManager.UpdateFolderMetadataAsync("998951261", updates, "enterprise", "documentFlow");
+
+            /*** Assert ***/
+            /***request***/
+            Assert.IsNotNull(boxRequest);
+            Assert.AreEqual(RequestMethod.Put, boxRequest.Method);
+            Assert.AreEqual(_FoldersUri + "998951261/metadata/enterprise/documentFlow", boxRequest.AbsoluteUri.AbsoluteUri);
+            List<BoxMetadataUpdate> payLoad = JsonConvert.DeserializeObject<List<BoxMetadataUpdate>>(boxRequest.Payload);
+            for (int i = 0; i < payLoad.Count; i++)
+            {
+                Assert.AreEqual(updates[i].Op, payLoad[i].Op);
+                Assert.AreEqual(updates[i].Path, payLoad[i].Path);
+            }
+            /***response***/
+            Assert.AreEqual("prioritization", result["currentDocumentStage"]);
+            Assert.AreEqual("planning team", result["needsApprovalFrom"]);
+            Assert.AreEqual((long)1, result["$version"]);
+            Assert.AreEqual("enterprise_12345", result["$scope"]);
+        }
     }
 }
