@@ -73,6 +73,7 @@ namespace Box.V2.Config
         public const string EnterpriseMetadataTemplatesPathString = @"{0}";
         public const string TasksPathString = @"{0}/tasks";
         public const string UserEmailAliasesPathString = @"{0}/email_aliases/";
+        public const string AllFolderMetadataPathString = @"{0}/metadata";
 
         /*** Auth ***/
         public const string AuthHeaderKey = "Authorization";

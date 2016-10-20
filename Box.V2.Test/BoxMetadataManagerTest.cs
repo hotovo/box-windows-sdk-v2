@@ -455,5 +455,106 @@ namespace Box.V2.Test
             Assert.AreEqual((long)1, result["$version"]);
             Assert.AreEqual("enterprise_12345", result["$scope"]);
         }
+
+        [TestMethod]
+        public async Task GetAllFolderMetadataTemplate_ValidResponse_ValidEntries()
+        {
+            /*** Arrange ***/
+            string responseString = @"{
+                                        ""entries"": [
+                                            {
+                                                ""currentDocumentStage"": ""prioritization"",
+                                                ""needsApprovalFrom"": ""planning team"",
+                                                ""$type"": ""documentFlow-452b4c9d-c3ad-4ac7-b1ad-9d5192f2fc5f"",
+                                                ""$parent"": ""folder_998951261"",
+                                                ""$id"": ""e57f90ff-0044-48c2-807d-06b908765baf"",
+                                                ""$version"": 1,
+                                                ""$typeVersion"": 2,
+                                                ""maximumDaysAllowedInCurrentStage"": 5,
+                                                ""$template"": ""documentFlow"",
+                                                ""$scope"": ""enterprise_12345""
+                                            },
+                                            {
+                                                ""skuNumber"": 45234522115075,
+                                                ""description"": ""Hat"",
+                                                ""department"": ""Accessories"",
+                                                ""$type"": ""productInfo-9d7b6993-b09e-4e52-b197-e42f0ea995b9"",
+                                                ""$parent"": ""folder_998951261"",
+                                                ""$id"": ""0dd54220-8340-4ea1-bd3f-59a23c68ccdd"",
+                                                ""$version"": 0,
+                                                ""$typeVersion"": 1,
+                                                ""$template"": ""productInfo"",
+                                                ""$scope"": ""enterprise_12345""
+                                            }
+                                        ],
+                                        ""limit"": 100
+                                    }";
+
+            IBoxRequest boxRequest = null;
+            _handler.Setup(h => h.ExecuteAsync<BoxMetadataTemplateCollection<Dictionary<string, object>>>(It.IsAny<IBoxRequest>()))
+                .Returns(Task.FromResult<IBoxResponse<BoxMetadataTemplateCollection<Dictionary<string, object>>>>(new BoxResponse<BoxMetadataTemplateCollection<Dictionary<string, object>>>()
+                {
+                    Status = ResponseStatus.Success,
+                    ContentString = responseString
+                })).Callback<IBoxRequest>(r => boxRequest = r);
+
+            /*** Act ***/
+            BoxMetadataTemplateCollection<Dictionary<string, object>> result = await _metadataManager.GetAllFolderMetadataTemplateAsync("998951261");
+
+            /*** Request ***/
+            Assert.IsNotNull(boxRequest);
+            Assert.AreEqual(RequestMethod.Get, boxRequest.Method);
+            Assert.AreEqual(_FoldersUri + "998951261/metadata", boxRequest.AbsoluteUri.AbsoluteUri);
+           
+            /*** Response ***/
+            Assert.AreEqual("prioritization", result.Entries[0]["currentDocumentStage"]);
+            Assert.AreEqual("e57f90ff-0044-48c2-807d-06b908765baf", result.Entries[0]["$id"]);
+            Assert.AreEqual((long)45234522115075, result.Entries[1]["skuNumber"]);
+            Assert.AreEqual((long)0, result.Entries[1]["$version"]);
+            Assert.AreEqual("productInfo", result.Entries[1]["$template"]);
+            Assert.AreEqual("enterprise_12345", result.Entries[1]["$scope"]);
+        }
+
+        [TestMethod]
+        public async Task GetFolderMetadata_ValidResponse_ValidMetadata()
+        {
+            /*** Arrange ***/
+            string responseString = @"{
+                                            ""currentDocumentStage"": ""initial vetting"",
+                                            ""needsApprovalFrom"": ""vetting team"",
+                                            ""nextDocumentStage"": ""prioritization"",
+                                            ""$type"": ""documentFlow-452b4c9d-c3ad-4ac7-b1ad-9d5192f2fc5f"",
+                                            ""$parent"": ""folder_998951261"",
+                                            ""$id"": ""e57f90ff-0044-48c2-807d-06b908765baf"",
+                                            ""$version"": 0,
+                                            ""$typeVersion"": 2,
+                                            ""$template"": ""documentFlow"",
+                                            ""$scope"": ""enterprise_12345""
+                                        }";
+
+            IBoxRequest boxRequest = null;
+            _handler.Setup(h => h.ExecuteAsync<Dictionary<string, object>>(It.IsAny<IBoxRequest>()))
+                .Returns(Task.FromResult<IBoxResponse<Dictionary<string, object>>>(new BoxResponse<Dictionary<string, object>>()
+                {
+                    Status = ResponseStatus.Success,
+                    ContentString = responseString
+                })).Callback<IBoxRequest>(r => boxRequest = r);
+
+            /*** Act ***/
+            Dictionary<string, object> result = await _metadataManager.GetFolderMetadataAsync("998951261", "enterprise", "documentFlow");
+
+            /*** Assert ***/
+            /***request***/
+            Assert.IsNotNull(boxRequest);
+            Assert.AreEqual(RequestMethod.Get, boxRequest.Method);
+            Assert.AreEqual(_FoldersUri + "998951261/metadata/enterprise/documentFlow", boxRequest.AbsoluteUri.AbsoluteUri);
+          
+            /***response***/
+            Assert.AreEqual("initial vetting", result["currentDocumentStage"]);
+            Assert.AreEqual("vetting team", result["needsApprovalFrom"]);
+            Assert.AreEqual("prioritization", result["nextDocumentStage"]);
+            Assert.AreEqual((long)0, result["$version"]);
+            Assert.AreEqual("enterprise_12345", result["$scope"]);
+        }
     }
 }

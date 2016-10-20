@@ -40,7 +40,7 @@ namespace Box.V2.Managers
         /// <param name="folderId">Id of folder</param>
         /// <param name="scope">Scope name. Currently, only the enterprise scope is supported</param>
         /// <param name="template">Metadata template name</param>
-        /// <returns></returns>
+        /// <returns>An instance of the template that includes key:value pairs defined by a user or application. If there is no template instance present</returns>
         public async Task<Dictionary<string, object>> GetFolderMetadataAsync(string folderId, string scope, string template)
         {
             return await GetMetadata(_config.FoldersEndpointUri, folderId, scope, template);
@@ -166,7 +166,19 @@ namespace Box.V2.Managers
             return response.ResponseObject;
         }
 
+        /// <summary>
+        /// Used to retrieve all metadata associated with a given folder.
+        /// </summary>
+        /// <param name="folderId">Id of the folder.</param>
+        /// <returns>An array of metadata instances associated with the folder.</returns>
+        public async Task<BoxMetadataTemplateCollection<Dictionary<string, object>>> GetAllFolderMetadataTemplateAsync(string folderId)
+        {
+            BoxRequest request = new BoxRequest(_config.FoldersEndpointUri, string.Format(Constants.AllFolderMetadataPathString, folderId))
+                .Method(RequestMethod.Get);
+            IBoxResponse<BoxMetadataTemplateCollection<Dictionary<string, object>>> response = await ToResponseAsync<BoxMetadataTemplateCollection<Dictionary<string, object>>>(request).ConfigureAwait(false);
 
+            return response.ResponseObject;
+        }
 
         //************************************
         //Private methods
