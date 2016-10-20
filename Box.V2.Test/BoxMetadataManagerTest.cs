@@ -365,5 +365,32 @@ namespace Box.V2.Test
             /***response***/
             Assert.IsTrue(result);
         }
+
+        [TestMethod]
+        public async Task DeleteFileMetadata_ValidResponse_ValidMetadata()
+        {
+            /*** Arrange ***/
+            string responseString = "";
+
+            IBoxRequest boxRequest = null;
+            _handler.Setup(h => h.ExecuteAsync<Dictionary<string, object>>(It.IsAny<IBoxRequest>()))
+                .Returns(Task.FromResult<IBoxResponse<Dictionary<string, object>>>(new BoxResponse<Dictionary<string, object>>()
+                {
+                    Status = ResponseStatus.Success,
+                    ContentString = responseString
+                })).Callback<IBoxRequest>(r => boxRequest = r);
+
+            /*** Act ***/
+            bool result = await _metadataManager.DeleteFileMetadataAsync("testFileId", "testScope", "testTemplate");
+
+            /*** Assert ***/
+            /***request***/
+            Assert.IsNotNull(boxRequest);
+            Assert.AreEqual(RequestMethod.Delete, boxRequest.Method);
+            Assert.AreEqual(_FilesUri + "testFileId/metadata/testScope/testTemplate", boxRequest.AbsoluteUri.AbsoluteUri);
+
+            /***response***/
+            Assert.IsTrue(result);
+        }
     }
 }

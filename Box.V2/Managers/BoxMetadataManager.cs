@@ -104,9 +104,12 @@ namespace Box.V2.Managers
         /// <param name="fileId">Id of file</param>
         /// <param name="scope">Scope name. Currently, the only scopes support are enterprise and global</param>
         /// <param name="template">Metadata template name</param>
-        /// <returns></returns>
+        /// <returns>Bool response to confirm the deletion of the template instance.</returns>
         public async Task<bool> DeleteFileMetadataAsync(string fileId, string scope, string template)
         {
+            fileId.ThrowIfNullOrWhiteSpace("fileId");
+            scope.ThrowIfNullOrWhiteSpace("scope");
+            template.ThrowIfNullOrWhiteSpace("template");
             return await DeleteMetadata(_config.FilesEndpointUri, fileId, scope, template);
         }
 
