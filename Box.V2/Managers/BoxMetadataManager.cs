@@ -156,11 +156,12 @@ namespace Box.V2.Managers
         /// <summary>
         /// Used to retrieve all metadata templates within a user's enterprise. Currently only the enterprise scope is supported.
         /// </summary>
-        /// <param name="scope">Scope name. Currently, the only scopes support are enterprise and global</param>
-        /// <returns></returns>
+        /// <param name="scope">Scope name. Currently, the only scopes support are enterprise and global.</param>
+        /// <returns>All the templates within an enterprise and their corresponding schema.</returns>
         public async Task<BoxEnterpriseMetadataTemplateCollection<BoxMetadataTemplate>> GetEnterpriseMetadataAsync(string scope = "enterprise")
         {
-            BoxRequest request = new BoxRequest(_config.MetadataTemplatesUri, string.Format(Constants.EnterpriseMetadataTemplatesPathString, scope));
+            BoxRequest request = new BoxRequest(_config.MetadataTemplatesUri, string.Format(Constants.EnterpriseMetadataTemplatesPathString, scope))
+            .Method(RequestMethod.Get);
             IBoxResponse<BoxEnterpriseMetadataTemplateCollection<BoxMetadataTemplate>> response = await ToResponseAsync<BoxEnterpriseMetadataTemplateCollection<BoxMetadataTemplate>>(request).ConfigureAwait(false);
 
             return response.ResponseObject;

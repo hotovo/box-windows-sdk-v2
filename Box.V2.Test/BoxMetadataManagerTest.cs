@@ -365,5 +365,191 @@ namespace Box.V2.Test
             /***response***/
             Assert.IsTrue(result);
         }
+
+        [TestMethod]
+        public async Task GetEnterpriseMetadata_ValidResponse_ValidEntries()
+        {
+            /*** Arrange ***/
+            string responseString = @"{
+                                        ""limit"": 100,
+                                        ""entries"": [
+                                            {
+                                                ""templateKey"": ""documentFlow"",
+                                                ""scope"": ""enterprise_12345"",
+                                                ""displayName"": ""Document Flow"",
+                                                ""hidden"": false,
+                                                ""fields"": [
+                                                    {
+                                                        ""type"": ""string"",
+                                                        ""key"": ""currentDocumentStage"",
+                                                        ""displayName"": ""Current Document Stage"",
+                                                        ""hidden"": false,
+                                                        ""description"": ""What stage in the process the document is in""
+                                                    },
+                                                    {
+                                                        ""type"": ""string"",
+                                                        ""key"": ""needsApprovalFrom"",
+                                                        ""displayName"": ""Needs Approval From"",
+                                                        ""hidden"": false
+                                                    },
+                                                    {
+                                                        ""type"": ""string"",
+                                                        ""key"": ""nextDocumentStage"",
+                                                        ""displayName"": ""Next Document Stage"",
+                                                        ""hidden"": false,
+                                                        ""description"": ""Next document stage after approval is given""
+                                                    },
+                                                    {
+                                                        ""type"": ""float"",
+                                                        ""key"": ""maximumDaysAllowedInCurrentStage"",
+                                                        ""displayName"": ""Maximum Days Allowed In Current Stage"",
+                                                        ""hidden"": false,
+                                                        ""description"": ""Maximum number of days that the document is allowed to be in this stage.""
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                ""templateKey"": ""marketingCollateral"",
+                                                ""scope"": ""enterprise_12345"",
+                                                ""displayName"": ""Marketing Collateral"",
+                                                ""hidden"": false,
+                                                ""fields"": [
+                                                    {
+                                                        ""type"": ""string"",
+                                                        ""key"": ""audience1"",
+                                                        ""displayName"": ""Audience"",
+                                                        ""hidden"": false
+                                                    },
+                                                    {
+                                                        ""type"": ""string"",
+                                                        ""key"": ""documentType"",
+                                                        ""displayName"": ""Document Type"",
+                                                        ""hidden"": false
+                                                    },
+                                                    {
+                                                        ""type"": ""string"",
+                                                        ""key"": ""competitiveDocument"",
+                                                        ""displayName"": ""Competitive Document"",
+                                                        ""hidden"": false
+                                                    },
+                                                    {
+                                                        ""type"": ""string"",
+                                                        ""key"": ""status"",
+                                                        ""displayName"": ""Status"",
+                                                        ""hidden"": false
+                                                    },
+                                                    {
+                                                        ""type"": ""string"",
+                                                        ""key"": ""author"",
+                                                        ""displayName"": ""Author"",
+                                                        ""hidden"": false
+                                                    },
+                                                    {
+                                                        ""type"": ""string"",
+                                                        ""key"": ""editor"",
+                                                        ""displayName"": ""Editor"",
+                                                        ""hidden"": false
+                                                    },
+                                                    {
+                                                        ""type"": ""string"",
+                                                        ""key"": ""currentState"",
+                                                        ""displayName"": ""Current State"",
+                                                        ""hidden"": false
+                                                    },
+                                                    {
+                                                        ""type"": ""string"",
+                                                        ""key"": ""previousState"",
+                                                        ""displayName"": ""Previous State"",
+                                                        ""hidden"": false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                ""templateKey"": ""productInfo"",
+                                                ""scope"": ""enterprise_12345"",
+                                                ""displayName"": ""Product Info"",
+                                                ""hidden"": false,
+                                                ""fields"": [
+                                                    {
+                                                        ""type"": ""float"",
+                                                        ""key"": ""skuNumber"",
+                                                        ""displayName"": ""SKU Number"",
+                                                        ""hidden"": false
+                                                    },
+                                                    {
+                                                        ""type"": ""string"",
+                                                        ""key"": ""description"",
+                                                        ""displayName"": ""Description"",
+                                                        ""hidden"": false
+                                                    },
+                                                    {
+                                                        ""type"": ""enum"",
+                                                        ""key"": ""department"",
+                                                        ""displayName"": ""Department"",
+                                                        ""hidden"": false,
+                                                        ""options"": [
+                                                            {
+                                                                ""key"": ""Beauty""
+                                                            },
+                                                            {
+                                                                ""key"": ""Shoes""
+                                                            },
+                                                            {
+                                                                ""key"": ""Accessories""
+                                                            },
+                                                            {
+                                                                ""key"": ""Clothing""
+                                                            },
+                                                            {
+                                                                ""key"": ""Handbags""
+                                                            },
+                                                            {
+                                                                ""key"": ""Bedding""
+                                                            },
+                                                            {
+                                                                ""key"": ""Watches""
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        ""type"": ""date"",
+                                                        ""key"": ""displayDate"",
+                                                        ""displayName"": ""Display Date"",
+                                                        ""hidden"": false
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        ""next_marker"": null,
+                                        ""prev_marker"": null
+                                    }";
+
+            IBoxRequest boxRequest = null;
+            Uri metatemplatesUri = new Uri(_baseUri, Box.V2.Config.Constants.MetadataTemplatesString);
+            _config.SetupGet(x => x.MetadataTemplatesUri).Returns(metatemplatesUri);
+            _handler.Setup(h => h.ExecuteAsync<BoxEnterpriseMetadataTemplateCollection<BoxMetadataTemplate>>(It.IsAny<IBoxRequest>()))
+                .Returns(Task.FromResult<IBoxResponse<BoxEnterpriseMetadataTemplateCollection<BoxMetadataTemplate>>>(new BoxResponse<BoxEnterpriseMetadataTemplateCollection<BoxMetadataTemplate>>()
+                {
+                    Status = ResponseStatus.Success,
+                    ContentString = responseString
+                })).Callback<IBoxRequest>(r => boxRequest = r);
+
+            /*** Act ***/
+            BoxEnterpriseMetadataTemplateCollection<BoxMetadataTemplate> result = await _metadataManager.GetEnterpriseMetadataAsync();
+
+            /*** Request ***/
+            Assert.IsNotNull(boxRequest);
+            Assert.AreEqual(RequestMethod.Get, boxRequest.Method);
+            Assert.AreEqual(metatemplatesUri + "enterprise", boxRequest.AbsoluteUri.AbsoluteUri);
+            /*** Response ***/
+            Assert.AreEqual("documentFlow", result.Entries[0].TemplateKey);
+            Assert.AreEqual("Document Flow", result.Entries[0].DisplayName);
+            Assert.AreEqual("currentDocumentStage", result.Entries[0].Fields[0].Key);
+            Assert.AreEqual("Needs Approval From", result.Entries[0].Fields[1].DisplayName);
+            Assert.AreEqual("marketingCollateral", result.Entries[1].TemplateKey);
+            Assert.AreEqual("Marketing Collateral", result.Entries[1].DisplayName);
+            Assert.AreEqual("audience1", result.Entries[1].Fields[0].Key);
+            Assert.AreEqual("Competitive Document", result.Entries[1].Fields[2].DisplayName);
+        }
     }
 }
