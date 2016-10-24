@@ -365,5 +365,101 @@ namespace Box.V2.Test
             /***response***/
             Assert.IsTrue(result);
         }
+
+        [TestMethod]
+        public async Task GetMetadataTemplate_ValidResponse_ValidMetadata()
+        {
+            /*** Arrange ***/
+            string responseString = @"{
+                                            ""templateKey"": ""productInfo"",
+                                            ""scope"": ""enterprise_12345"",
+                                            ""displayName"": ""Product Info"",
+                                            ""hidden"": false,
+                                            ""fields"": [
+                                                {
+                                                    ""type"": ""float"",
+                                                    ""key"": ""skuNumber"",
+                                                    ""displayName"": ""SKU Number"",
+                                                    ""hidden"": false
+                                                },
+                                                {
+                                                    ""type"": ""string"",
+                                                    ""key"": ""description"",
+                                                    ""displayName"": ""Description"",
+                                                    ""hidden"": false
+                                                },
+                                                {
+                                                    ""type"": ""enum"",
+                                                    ""key"": ""department"",
+                                                    ""displayName"": ""Department"",
+                                                    ""hidden"": false,
+                                                    ""options"": [
+                                                        {
+                                                            ""key"": ""Beauty""
+                                                        },
+                                                        {
+                                                            ""key"": ""Shoes""
+                                                        },
+                                                        {
+                                                            ""key"": ""Accessories""
+                                                        },
+                                                        {
+                                                            ""key"": ""Clothing""
+                                                        },
+                                                        {
+                                                            ""key"": ""Handbags""
+                                                        },
+                                                        {
+                                                            ""key"": ""Bedding""
+                                                        },
+                                                        {
+                                                            ""key"": ""Watches""
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    ""type"": ""date"",
+                                                    ""key"": ""displayDate"",
+                                                    ""displayName"": ""Display Date"",
+                                                    ""hidden"": false
+                                                }
+                                            ]
+                                        }";
+
+            IBoxRequest boxRequest = null;
+            Uri metatemplatesUri = new Uri(_baseUri, Box.V2.Config.Constants.MetadataTemplatesString);
+            _config.SetupGet(x => x.MetadataTemplatesUri).Returns(metatemplatesUri);
+            _handler.Setup(h => h.ExecuteAsync<BoxMetadataTemplate>(It.IsAny<IBoxRequest>()))
+                .Returns(Task.FromResult<IBoxResponse<BoxMetadataTemplate>>(new BoxResponse<BoxMetadataTemplate>()
+                {
+                    Status = ResponseStatus.Success,
+                    ContentString = responseString
+                })).Callback<IBoxRequest>(r => boxRequest = r);
+
+            /*** Act ***/
+            BoxMetadataTemplate result = await _metadataManager.GetMetadataTemplate("enterprise", "productInfo");
+
+            /*** Request ***/
+            Assert.IsNotNull(boxRequest);
+            Assert.AreEqual(RequestMethod.Get, boxRequest.Method);
+            Assert.AreEqual(metatemplatesUri + "enterprise/productInfo/schema", boxRequest.AbsoluteUri.AbsoluteUri);
+            /*** Response ***/
+            Assert.AreEqual("productInfo", result.TemplateKey);
+            Assert.AreEqual("Product Info", result.DisplayName);
+            Assert.AreEqual("skuNumber", result.Fields[0].Key);
+            Assert.AreEqual("SKU Number", result.Fields[0].DisplayName);
+            Assert.AreEqual("float", result.Fields[0].Type);
+            Assert.AreEqual("description", result.Fields[1].Key);
+            Assert.AreEqual("Description", result.Fields[1].DisplayName);
+            Assert.AreEqual("string", result.Fields[1].Type);
+            Assert.AreEqual("department", result.Fields[2].Key);
+            Assert.AreEqual("Department", result.Fields[2].DisplayName);
+            Assert.AreEqual("enum", result.Fields[2].Type);
+            Assert.AreEqual("Beauty", result.Fields[2].Options[0].Key);
+            Assert.AreEqual("Clothing", result.Fields[2].Options[3].Key);
+            Assert.AreEqual("Watches", result.Fields[2].Options[6].Key);
+
+           
+        }
     }
 }

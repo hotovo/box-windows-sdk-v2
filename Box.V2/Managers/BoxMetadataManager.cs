@@ -129,12 +129,13 @@ namespace Box.V2.Managers
         /// <summary>
         /// Used to retrieve the schema for a given metadata template.
         /// </summary>
-        /// <param name="scope">Scope name. Currently, the only scopes supported are enterprise and global</param>
-        /// <param name="template">Metadata template name</param>
-        /// <returns></returns>
+        /// <param name="scope">Scope name. Currently, the only scopes supported are enterprise and global.</param>
+        /// <param name="template">Metadata template name.</param>
+        /// <returns>The schema representing the metadata template queried.</returns>
         public async Task<BoxMetadataTemplate> GetMetadataTemplate(string scope, string template)
         {
-            BoxRequest request = new BoxRequest(_config.MetadataTemplatesUri, string.Format(Constants.MetadataTemplatesPathString, scope, template));
+            BoxRequest request = new BoxRequest(_config.MetadataTemplatesUri, string.Format(Constants.MetadataTemplatesPathString, scope, template))
+            .Method(RequestMethod.Get);
             IBoxResponse<BoxMetadataTemplate> response = await ToResponseAsync<BoxMetadataTemplate>(request).ConfigureAwait(false);
 
             return response.ResponseObject;
